@@ -50,6 +50,8 @@ threads = 4
 # number of concurrent connections to have open to S3. Since the underlying
 # protocol is HTTP/1.1, there is no mux/concurrency per connection.
 poolsize = 1
+# the work item queue depth per-thread
+queue_size = 64
 
 # currently this timeout is ignored but is a required config field
 request_timeout = 1000

@@ -40,6 +40,7 @@ publisher_threads = 1
 subscriber_threads = 6
 publisher_poolsize = 1
 publisher_concurrency = 20
+queue_size = 64
 
 [workload]
 # the number of threads that will be used to generate requests

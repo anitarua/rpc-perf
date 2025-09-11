@@ -7,6 +7,8 @@ pub struct Client {
     /// The number of concurrent sessions per connection.
     #[serde(default)]
     concurrency: usize,
+    /// The work item queue size per thread.
+    queue_size: usize,
     /// Connection timeout.
     connect_timeout: u64,
     /// Request timeout
@@ -39,6 +41,10 @@ impl Client {
 
     pub fn threads(&self) -> usize {
         self.threads
+    }
+
+    pub fn queue_size(&self) -> usize {
+        self.queue_size
     }
 
     pub fn request_timeout(&self) -> Duration {

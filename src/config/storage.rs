@@ -9,6 +9,8 @@ pub struct Storage {
     concurrency: usize,
     // number of threads for client tasks
     threads: usize,
+    // size of the queue per thread.
+    queue_size: usize,
 }
 
 impl Storage {
@@ -22,5 +24,9 @@ impl Storage {
 
     pub fn concurrency(&self) -> usize {
         std::cmp::max(1, self.concurrency)
+    }
+
+    pub fn queue_size(&self) -> usize {
+        self.queue_size
     }
 }

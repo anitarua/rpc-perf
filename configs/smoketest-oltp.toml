@@ -49,6 +49,8 @@ endpoints = [
 threads = 4
 # the total number of connections to each endpoint
 poolsize = 20
+# the work item queue depth per-thread
+queue_size = 64
 
 [workload]
 # the number of threads that will be used to generate the workload

@@ -11,6 +11,8 @@ pub struct Leaderboard {
     request_timeout: u64,
     // number of threads for client tasks
     threads: usize,
+    // queue size per thread
+    queue_size: usize,
 }
 
 impl Leaderboard {
@@ -28,5 +30,9 @@ impl Leaderboard {
 
     pub fn request_timeout(&self) -> Duration {
         Duration::from_millis(self.request_timeout)
+    }
+
+    pub fn queue_size(&self) -> usize {
+        self.queue_size
     }
 }

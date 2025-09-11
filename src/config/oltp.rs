@@ -6,6 +6,8 @@ pub struct Oltp {
     poolsize: usize,
     // number of threads for oltp tasks
     threads: usize,
+    // queue size per thread
+    queue_size: usize,
 }
 
 impl Oltp {
@@ -15,5 +17,9 @@ impl Oltp {
 
     pub fn poolsize(&self) -> usize {
         std::cmp::max(1, self.poolsize)
+    }
+
+    pub fn queue_size(&self) -> usize {
+        self.queue_size
     }
 }

@@ -33,9 +33,6 @@ static WAIT: AtomicUsize = AtomicUsize::new(0);
 static METRICS_SNAPSHOT: Lazy<Arc<RwLock<MetricsSnapshot>>> =
     Lazy::new(|| Arc::new(RwLock::new(Default::default())));
 
-// queue depth per client thread
-static QUEUE_DEPTH: usize = 64;
-
 fn main() {
     // custom panic hook to terminate whole process after unwinding
     std::panic::set_hook(Box::new(|s| {
@@ -150,7 +147,7 @@ fn main() {
         let (replay_sender, replay_receiver) = bounded(
             config
                 .client()
-                .map(|c| c.threads() * QUEUE_DEPTH * 16)
+                .map(|c| c.threads() * c.queue_size() * 16)
                 .unwrap_or(1),
         );
 
@@ -190,31 +187,31 @@ fn main() {
     let (client_sender, client_receiver) = bounded(
         config
             .client()
-            .map(|c| c.threads() * QUEUE_DEPTH)
+            .map(|c| c.threads() * c.queue_size())
             .unwrap_or(1),
     );
     let (pubsub_sender, pubsub_receiver) = bounded(
         config
             .pubsub()
-            .map(|c| c.publisher_threads() * QUEUE_DEPTH)
+            .map(|c| c.publisher_threads() * c.queue_size())
             .unwrap_or(1),
     );
     let (store_sender, store_receiver) = bounded(
         config
             .storage()
-            .map(|c| c.threads() * QUEUE_DEPTH)
+            .map(|c| c.threads() * c.queue_size())
             .unwrap_or(1),
     );
     let (leaderboard_sender, leaderboard_receiver) = bounded(
         config
             .leaderboard()
-            .map(|c| c.threads() * QUEUE_DEPTH)
+            .map(|c| c.threads() * c.queue_size())
             .unwrap_or(1),
     );
     let (oltp_sender, oltp_receiver) = bounded(
         config
             .oltp()
-            .map(|c| c.threads() * QUEUE_DEPTH)
+            .map(|c| c.threads() * c.queue_size())
             .unwrap_or(1),
     );
 

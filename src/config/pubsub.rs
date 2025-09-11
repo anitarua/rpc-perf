@@ -14,6 +14,8 @@ pub struct Pubsub {
     publisher_poolsize: usize,
     publisher_concurrency: usize,
 
+    queue_size: usize,
+
     /// Specify the default sizes for the read and write buffers (in bytes).
     /// It is useful to increase the sizes if you expect to send and/or receive
     /// large requests/responses as part of the workload.
@@ -65,6 +67,10 @@ impl Pubsub {
 
     pub fn publisher_concurrency(&self) -> usize {
         self.publisher_concurrency
+    }
+
+    pub fn queue_size(&self) -> usize {
+        self.queue_size
     }
 
     pub fn read_buffer_size(&self) -> usize {

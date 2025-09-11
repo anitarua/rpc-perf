@@ -58,6 +58,9 @@ concurrency = 25
 connect_timeout = 10000
 # set the timeout in milliseconds
 request_timeout = 1000
+# set the work item queue depth per-thread.
+queue_size = 64
+
 
 [workload]
 # the number of threads that will be used to generate the workload

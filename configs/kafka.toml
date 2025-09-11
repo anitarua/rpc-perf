@@ -55,6 +55,8 @@ connect_timeout = 1000
 publish_timeout = 1000
 # the number of threads in the publisher runtime
 publisher_threads = 4
+# the work item queue depth per thread
+queue_size = 64
 # the total number of Kafka producer clients (connections)
 publisher_poolsize = 1
 # the total number of Kafka producing tasks per producer client
