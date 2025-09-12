@@ -2370,8 +2370,7 @@ dependencies = [
 [[package]]
 name = "momento"
 version = "0.53.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "88c93611d8c761bf3ae938037b6ff1f20d0a04637d6cc1c8db4bddd40fad2253"
+source = "git+https://github.com/momentohq/client-sdk-rust.git?branch=protosocket-tls#5f67ec0df583f66b8fe786a2cabd118fe2dcd023"
 dependencies = [
  "base64 0.22.1",
  "derive_more",
@@ -2384,6 +2383,7 @@ dependencies = [
  "protosocket-prost",
  "protosocket-rpc",
  "rand 0.9.0",
+ "rustls-pki-types",
  "serde",
  "serde_json",
  "thiserror 2.0.12",
@@ -2394,9 +2394,8 @@ dependencies = [
 
 [[package]]
 name = "momento-protos"
-version = "0.127.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "8c49bdf3b4938d4249bd0010c3ef39ec9cde45aebdd697a32bf7fbe0a0d2f395"
+version = "0.1.0"
+source = "git+https://github.com/momentohq/client-protos.git?branch=chore%2Fpin-protosocket#ce968ac4ddb979f1a4b3d454594a5b05b7b4df84"
 dependencies = [
  "prost",
  "protosocket-rpc",
@@ -3021,8 +3020,7 @@ dependencies = [
 [[package]]
 name = "protosocket"
 version = "0.8.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "073f39accdeb6f1b0368905d1b9de629193c363e1b4c1335ca239c119ebdc3e1"
+source = "git+https://github.com/kvc0/protosocket.git?rev=c9d7a186b#c9d7a186b9fb8d5c186dcb79791b8979151fb545"
 dependencies = [
  "bytes",
  "futures",
@@ -3035,8 +3033,7 @@ dependencies = [
 [[package]]
 name = "protosocket-prost"
 version = "0.8.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5bb7cb2eff7fcd6c6e65ac292bfdc6e83cbca48e5adf8d4bf5e9aa1969f9d45e"
+source = "git+https://github.com/kvc0/protosocket.git?rev=c9d7a186b#c9d7a186b9fb8d5c186dcb79791b8979151fb545"
 dependencies = [
  "bytes",
  "log",
@@ -3049,16 +3046,18 @@ dependencies = [
 [[package]]
 name = "protosocket-rpc"
 version = "0.8.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a9aadd0055bcec8a5ed0a421863746a1bcc245422a829547a5cca38222f05d9f"
+source = "git+https://github.com/kvc0/protosocket.git?rev=c9d7a186b#c9d7a186b9fb8d5c186dcb79791b8979151fb545"
 dependencies = [
  "futures",
  "k-lock",
  "log",
  "protosocket",
+ "rustls-pki-types",
  "thiserror 1.0.69",
  "tokio",
+ "tokio-rustls",
  "tokio-util",
+ "webpki-roots 1.0.2",
 ]
 
 [[package]]
@@ -3440,7 +3439,7 @@ dependencies = [
  "tonic-build",
  "url-escape",
  "warp",
- "webpki-roots",
+ "webpki-roots 0.26.8",
 ]
 
 [[package]]
@@ -3568,11 +3567,12 @@ dependencies = [
 
 [[package]]
 name = "rustls-pki-types"
-version = "1.11.0"
+version = "1.12.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "917ce264624a4b4db1c364dcc35bfca9ded014d0a958cd47ad3e960e988ea51c"
+checksum = "229a4a4c221013e7e1f1a043678c5cc39fe5171437c88fb47151a21e6f5b5c79"
 dependencies = [
  "web-time",
+ "zeroize",
 ]
 
 [[package]]
@@ -4475,7 +4475,7 @@ dependencies = [
  "tower-layer",
  "tower-service",
  "tracing",
- "webpki-roots",
+ "webpki-roots 0.26.8",
 ]
 
 [[package]]
@@ -4874,6 +4874,15 @@ name = "webpki-roots"
 version = "0.26.8"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "2210b291f7ea53617fbafcc4939f10914214ec15aace5ba62293a668f322c5c9"
+dependencies = [
+ "rustls-pki-types",
+]
+
+[[package]]
+name = "webpki-roots"
+version = "1.0.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "7e8983c3ab33d6fb807cfcdad2491c4ea8cbc8ed839181c7dfd9c67c83e261b2"
 dependencies = [
  "rustls-pki-types",
 ]

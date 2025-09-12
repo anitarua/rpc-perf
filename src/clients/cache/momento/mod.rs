@@ -237,7 +237,7 @@ pub fn launch_tasks_with_protosocket(
                     .default_ttl(Duration::from_secs(900))
                     .configuration(configurations::Laptop::latest())
                     .credential_provider(
-                        credential_provider.full_endpoint_override(&config.target().endpoints()[0]),
+                        credential_provider.unverified_tls_endpoint_override(&config.target().endpoints()[0]),
                     )
                     .runtime(tokio::runtime::Handle::current())
                     .build()
