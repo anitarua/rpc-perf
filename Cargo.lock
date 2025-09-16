@@ -2370,7 +2370,7 @@ dependencies = [
 [[package]]
 name = "momento"
 version = "0.53.1"
-source = "git+https://github.com/momentohq/client-sdk-rust.git?branch=protosocket-tls#5f67ec0df583f66b8fe786a2cabd118fe2dcd023"
+source = "git+https://github.com/momentohq/client-sdk-rust.git?rev=de0e4c6#de0e4c69af5b142d2176ae2e094424d157d1b9d3"
 dependencies = [
  "base64 0.22.1",
  "derive_more",
