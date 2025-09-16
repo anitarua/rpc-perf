@@ -212,67 +212,78 @@ pub fn launch_tasks_with_protosocket(
 ) {
     debug!("launching momento-protosocket protocol tasks");
 
+    let mut clients_created = vec![];
     for _ in 0..config.client().unwrap().poolsize() {
-        let client = {
-            let _guard = runtime.enter();
+        let _guard = runtime.enter();
+        let config = config.clone();
+        let work_receiver = work_receiver.clone();
+        clients_created.push(runtime.spawn(create_protosocket_client_and_tasks(
+            runtime.handle().clone(),
+            config,
+            work_receiver,
+        )));
+    }
 
-            // initialize the Momento cache client
-            if std::env::var("MOMENTO_API_KEY").is_err() {
-                eprintln!("environment variable `MOMENTO_API_KEY` is not set");
-                std::process::exit(1);
-            }
+    runtime.block_on(async {
+        futures::future::join_all(clients_created).await;
+    });
+}
 
-            let credential_provider =
-                match CredentialProvider::from_env_var("MOMENTO_API_KEY".to_string()) {
-                    Ok(v) => v,
-                    Err(e) => {
-                        eprintln!("MOMENTO_API_KEY key should be valid: {e}");
-                        std::process::exit(1);
-                    }
-                };
+async fn create_protosocket_client_and_tasks(
+    runtime: tokio::runtime::Handle,
+    config: Config,
+    work_receiver: Receiver<ClientWorkItemKind<ClientRequest>>,
+) {
+    // initialize the Momento cache client
+    if std::env::var("MOMENTO_API_KEY").is_err() {
+        eprintln!("environment variable `MOMENTO_API_KEY` is not set");
+        std::process::exit(1);
+    }
 
-            // start async block but don't proceed until we get the client returned
-            runtime.block_on(async {
-                let client = match ProtosocketCacheClient::builder()
-                    .default_ttl(Duration::from_secs(900))
-                    .configuration(configurations::Laptop::latest())
-                    .credential_provider(
-                        credential_provider.unverified_tls_endpoint_override(&config.target().endpoints()[0]),
-                    )
-                    .runtime(tokio::runtime::Handle::current())
-                    .build()
-                    .await
-                {
-                    Ok(c) => c,
-                    Err(e) => {
-                        eprintln!("could not create protosocket cache client: {}", e);
-                        std::process::exit(1);
-                    }
-                };
-
-                let client = match client.authenticate().await {
-                    Ok(c) => c,
-                    Err(e) => {
-                        eprintln!("could not authenticate protosocket cache client: {}", e);
-                        std::process::exit(1);
-                    }
-                };
-
-                client
-            })
-        };
-
-        CONNECT.increment();
-        CONNECT_CURR.increment();
-
-        // create one task per channel
-        for _ in 0..config.client().unwrap().concurrency() {
-            runtime.spawn(protosocket_task(
-                config.clone(),
-                client.clone(),
-                work_receiver.clone(),
-            ));
+    let credential_provider = match CredentialProvider::from_env_var("MOMENTO_API_KEY".to_string())
+    {
+        Ok(v) => v,
+        Err(e) => {
+            eprintln!("MOMENTO_API_KEY key should be valid: {e}");
+            std::process::exit(1);
         }
+    };
+
+    let unauthenticated_client = match ProtosocketCacheClient::builder()
+        .default_ttl(Duration::from_secs(900))
+        .configuration(configurations::Laptop::latest())
+        .credential_provider(
+            credential_provider.unverified_tls_endpoint_override(&config.target().endpoints()[0]),
+        )
+        .runtime(tokio::runtime::Handle::current())
+        .build()
+        .await
+    {
+        Ok(c) => c,
+        Err(e) => {
+            eprintln!("could not create protosocket cache client: {}", e);
+            std::process::exit(1);
+        }
+    };
+
+    let client = match unauthenticated_client.authenticate().await {
+        Ok(c) => c,
+        Err(e) => {
+            eprintln!("could not authenticate protosocket cache client: {}", e);
+            std::process::exit(1);
+        }
+    };
+
+    CONNECT.increment();
+    CONNECT_CURR.increment();
+
+    // create one task per channel
+    for _ in 0..config.client().unwrap().concurrency() {
+        runtime.spawn(protosocket_task(
+            config.clone(),
+            client.clone(),
+            work_receiver.clone(),
+        ));
     }
 }
 
