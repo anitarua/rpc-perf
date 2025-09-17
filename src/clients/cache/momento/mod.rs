@@ -253,6 +253,7 @@ async fn create_protosocket_client_and_tasks(
     // Examples: "IO failure: Cannot assign requested address (os error 99)"
     // and "IO failure: Can't assign requested address (os error 49)"
 
+    let retry_delay = config.client().unwrap().retry_delay();
     let credential_provider =
         credential_provider.unverified_tls_endpoint_override(&config.target().endpoints()[0]);
     let unauthenticated_client: ProtosocketCacheClientBuilder<ReadyToAuthenticate> = loop {
@@ -269,7 +270,7 @@ async fn create_protosocket_client_and_tasks(
                 eprintln!("could not create protosocket cache client: {}", e);
                 if e.to_string().contains("assign requested address") {
                     eprintln!("delaying a bit before retrying client initialization");
-                    sleep(Duration::from_micros(500)).await;
+                    sleep(retry_delay).await;
                     continue;
                 } else {
                     std::process::exit(1);

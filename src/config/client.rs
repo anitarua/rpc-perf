@@ -9,6 +9,8 @@ pub struct Client {
     concurrency: usize,
     /// The work item queue size per thread.
     queue_size: usize,
+    /// Number of milliseconds to wait before retrying client initialization if it fails
+    retry_delay: u64,
     /// Connection timeout.
     connect_timeout: u64,
     /// Request timeout
@@ -45,6 +47,10 @@ impl Client {
 
     pub fn queue_size(&self) -> usize {
         self.queue_size
+    }
+
+    pub fn retry_delay(&self) -> Duration {
+        Duration::from_millis(self.retry_delay)
     }
 
     pub fn request_timeout(&self) -> Duration {
