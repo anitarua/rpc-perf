@@ -4,7 +4,7 @@ use ::momento::cache::GetResponse;
 
 /// Retrieve a key-value pair from the cache.
 pub async fn protosocket_get(
-    client: &mut ProtosocketCacheClient,
+    client: &ProtosocketCacheClient,
     config: &Config,
     cache_name: &str,
     request: workload::client::Get,

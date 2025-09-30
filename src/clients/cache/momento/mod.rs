@@ -256,8 +256,8 @@ async fn create_protosocket_client_and_tasks(
     let retry_delay = config.client().unwrap().retry_delay();
     let credential_provider =
         credential_provider.unverified_tls_endpoint_override(&config.target().endpoints()[0]);
-    let unauthenticated_client: ProtosocketCacheClientBuilder<ReadyToAuthenticate> = loop {
-        let client = match ProtosocketCacheClient::builder()
+    let client: ProtosocketCacheClient = loop {
+        let protosocket_client = match ProtosocketCacheClient::builder()
             .default_ttl(Duration::from_secs(900))
             .configuration(configurations::Laptop::latest())
             .credential_provider(credential_provider.clone())
@@ -269,7 +269,10 @@ async fn create_protosocket_client_and_tasks(
             Err(e) => {
                 eprintln!("could not create protosocket cache client: {}", e);
                 if e.to_string().contains("assign requested address") {
-                    eprintln!("delaying a bit before retrying client initialization");
+                    eprintln!(
+                        "delaying {:?} before retrying client initialization",
+                        retry_delay
+                    );
                     sleep(retry_delay).await;
                     continue;
                 } else {
@@ -278,15 +281,7 @@ async fn create_protosocket_client_and_tasks(
             }
         };
 
-        break client;
-    };
-
-    let client = match unauthenticated_client.authenticate().await {
-        Ok(c) => c,
-        Err(e) => {
-            eprintln!("could not authenticate protosocket cache client: {}", e);
-            std::process::exit(1);
-        }
+        break protosocket_client;
     };
 
     CONNECT.increment();
@@ -304,7 +299,7 @@ async fn create_protosocket_client_and_tasks(
 
 async fn protosocket_task(
     config: Config,
-    mut client: ProtosocketCacheClient,
+    client: ProtosocketCacheClient,
     work_receiver: Receiver<ClientWorkItemKind<ClientRequest>>,
 ) -> Result<()> {
     let cache_name = config.target().cache_name().unwrap_or_else(|| {
@@ -325,8 +320,8 @@ async fn protosocket_task(
                 /*
                  * KEY-VALUE
                  */
-                ClientRequest::Get(r) => protosocket_get(&mut client, &config, cache_name, r).await,
-                ClientRequest::Set(r) => protosocket_set(&mut client, &config, cache_name, r).await,
+                ClientRequest::Get(r) => protosocket_get(&client, &config, cache_name, r).await,
+                ClientRequest::Set(r) => protosocket_set(&client, &config, cache_name, r).await,
 
                 /*
                  * UNSUPPORTED

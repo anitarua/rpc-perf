@@ -2117,9 +2117,9 @@ dependencies = [
 
 [[package]]
 name = "libc"
-version = "0.2.170"
+version = "0.2.176"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "875b3680cb2f8f71bdcf9a30f38d48282f5d3c95cbf9b3fa57269bb5d5c06828"
+checksum = "58f929b4d672ea937a23a1ab494143d968337a5f47e56d0815df1e0890ddf174"
 
 [[package]]
 name = "libloading"
@@ -2370,7 +2370,7 @@ dependencies = [
 [[package]]
 name = "momento"
 version = "0.53.1"
-source = "git+https://github.com/momentohq/client-sdk-rust.git?rev=4c90fc7#4c90fc7075b8467f6e98df091211fef95565c450"
+source = "git+https://github.com/momentohq/client-sdk-rust.git?rev=162ae39#162ae393c783b13543d8265197d749d0671505b1"
 dependencies = [
  "base64 0.22.1",
  "derive_more",
@@ -2394,8 +2394,9 @@ dependencies = [
 
 [[package]]
 name = "momento-protos"
-version = "0.1.0"
-source = "git+https://github.com/momentohq/client-protos.git?branch=chore%2Fpin-protosocket#ce968ac4ddb979f1a4b3d454594a5b05b7b4df84"
+version = "0.127.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "be2b09b8df95deb923a28d60506e3a8b37c7507046cdf9a367b470c75a5ddbff"
 dependencies = [
  "prost",
  "protosocket-rpc",
@@ -3019,8 +3020,9 @@ dependencies = [
 
 [[package]]
 name = "protosocket"
-version = "0.8.0"
-source = "git+https://github.com/kvc0/protosocket.git?rev=c9d7a186b#c9d7a186b9fb8d5c186dcb79791b8979151fb545"
+version = "0.11.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "5fbf8b19016c53102de17972e1d069913029c684155c07fa62ad6c4928219081"
 dependencies = [
  "bytes",
  "futures",
@@ -3032,8 +3034,9 @@ dependencies = [
 
 [[package]]
 name = "protosocket-prost"
-version = "0.8.0"
-source = "git+https://github.com/kvc0/protosocket.git?rev=c9d7a186b#c9d7a186b9fb8d5c186dcb79791b8979151fb545"
+version = "0.11.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "ccde7a2d275d23e3450f5ff09da0b9faa5b33c31f00fa13a3cb93a85d7730d63"
 dependencies = [
  "bytes",
  "log",
@@ -3045,14 +3048,17 @@ dependencies = [
 
 [[package]]
 name = "protosocket-rpc"
-version = "0.8.0"
-source = "git+https://github.com/kvc0/protosocket.git?rev=c9d7a186b#c9d7a186b9fb8d5c186dcb79791b8979151fb545"
+version = "0.11.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "f74c2a60d26c35244a8802659c130e8989aca23a5f2c65127a8d68448a8ca088"
 dependencies = [
  "futures",
  "k-lock",
  "log",
  "protosocket",
+ "rand 0.9.0",
  "rustls-pki-types",
+ "socket2 0.6.0",
  "thiserror 1.0.69",
  "tokio",
  "tokio-rustls",
@@ -3879,6 +3885,16 @@ checksum = "c970269d99b64e60ec3bd6ad27270092a5394c4e309314b18ae3fe575695fbe8"
 dependencies = [
  "libc",
  "windows-sys 0.52.0",
+]
+
+[[package]]
+name = "socket2"
+version = "0.6.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "233504af464074f9d066d7b5416c5f9b894a5862a6506e306f7b816cdd6f1807"
+dependencies = [
+ "libc",
+ "windows-sys 0.59.0",
 ]
 
 [[package]]

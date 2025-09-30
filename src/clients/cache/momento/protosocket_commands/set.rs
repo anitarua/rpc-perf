@@ -4,7 +4,7 @@ use ::momento::cache::SetRequest;
 
 /// Sets a key-value pair in the cache.
 pub async fn protosocket_set(
-    client: &mut ProtosocketCacheClient,
+    client: &ProtosocketCacheClient,
     config: &Config,
     cache_name: &str,
     request: workload::client::Set,
