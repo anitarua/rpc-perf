@@ -245,9 +245,11 @@ async fn task(
             }
             Err(ResponseError::Exception) => {
                 RESPONSE_EX.increment();
+                connection = Some(con);
             }
             Err(ResponseError::Timeout) => {
                 RESPONSE_TIMEOUT.increment();
+                connection = Some(con);
             }
             Err(ResponseError::Ratelimited) => {
                 RESPONSE_RATELIMITED.increment();
