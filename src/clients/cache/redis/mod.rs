@@ -75,14 +75,23 @@ pub async fn pool_manager(endpoint: String, _config: Config, queue: Queue<Multip
             continue;
         }
 
-        if let Ok(connection) = client
+        let result = client
             .as_ref()
             .unwrap()
             .get_multiplexed_async_connection()
-            .await
-        {
+            .await;
+        if let Ok(connection) = result {
+            info!(
+                "===Successfully opened resp connection to {}===\n",
+                endpoint
+            );
             let _ = queue.send(connection).await;
         } else {
+            info!(
+                "===Resp connection to {} failed due to {}===\n",
+                endpoint,
+                result.unwrap_err()
+            );
             client = None;
         }
     }
