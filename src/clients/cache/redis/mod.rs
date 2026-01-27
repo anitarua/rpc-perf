@@ -61,16 +61,38 @@ pub async fn pool_manager(endpoint: String, _config: Config, queue: Queue<Multip
         if client.is_none() {
             CONNECT.increment();
 
-            if let Ok(c) = ::redis::Client::open(endpoint.clone()) {
+            let connect_result = ::redis::Client::open(endpoint.clone());
+            if let Ok(c) = connect_result {
                 CONNECT_OK.increment();
                 CONNECT_CURR.increment();
 
                 client = Some(c);
+                info!(
+                    "===Successfully created redis client to connect to {}===\n",
+                    endpoint
+                );
             } else {
+                info!(
+                    "===Failed to create redis client due to {}===\n",
+                    connect_result.unwrap_err()
+                );
                 CONNECT_EX.increment();
 
                 tokio::time::sleep(Duration::from_millis(1)).await;
             }
+
+            // if let Ok(c) = ::redis::Client::open(endpoint.clone()) {
+            //     CONNECT_OK.increment();
+            //     CONNECT_CURR.increment();
+
+            //     client = Some(c);
+
+            // } else {
+            //     info!("===Failed to create redis client to connect to {}===\n", endpoint);
+            //     CONNECT_EX.increment();
+
+            //     tokio::time::sleep(Duration::from_millis(1)).await;
+            // }
 
             continue;
         }
@@ -81,15 +103,14 @@ pub async fn pool_manager(endpoint: String, _config: Config, queue: Queue<Multip
             .get_multiplexed_async_connection()
             .await;
         if let Ok(connection) = result {
-            info!(
-                "===Successfully opened resp connection to {}===\n",
-                endpoint
-            );
+            // info!(
+            //     "===Successfully opened resp connection to {}===\n",
+            //     endpoint
+            // );
             let _ = queue.send(connection).await;
         } else {
             info!(
-                "===Resp connection to {} failed due to {}===\n",
-                endpoint,
+                "===Resp multiplexed async connection failed due to {}===\n",
                 result.unwrap_err()
             );
             client = None;
