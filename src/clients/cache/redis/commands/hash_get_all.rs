@@ -1,8 +1,8 @@
 use super::*;
 
 /// Retrieve all fields for a hash.
-pub async fn hash_get_all(
-    connection: &mut MultiplexedConnection,
+pub async fn hash_get_all<C: ConnectionLike + AsyncCommands>(
+    connection: &mut C,
     config: &Config,
     request: workload::client::HashGetAll,
 ) -> std::result::Result<(), ResponseError> {

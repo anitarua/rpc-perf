@@ -48,9 +48,9 @@ log_max_size = 1073741824
 # - IP:PORT pairs
 # - redis connection strings, eg: redis://localhost
 # - unix socket connection strings, eg: unix:///path/to/redis.sock
-endpoints = [
-	"127.0.0.1:6379",
-]
+endpoints = ["127.0.0.1:6379"]
+# Enable cluster mode
+# cluster_mode = true
 
 [client]
 # number of threads used to drive client requests
@@ -143,7 +143,7 @@ commands = [
 	{ verb = "hset", weight = 5, cardinality = 5 },
 
 	# delete an entire hash
-	{ verb = "delete", weight = 5 }
+	{ verb = "delete", weight = 5 },
 ]
 
 # An example keyspace showcasing the use of the `list` family of commands.
@@ -268,15 +268,15 @@ commands = [
 	{ verb = "sadd", weight = 5, cardinality = 5 },
 
 	# retrieve all members in the set
-	{ verb = "smembers", weight = 20},
+	{ verb = "smembers", weight = 20 },
 
 	## remove a member from the set
-	{ verb = "srem", weight = 5},
+	{ verb = "srem", weight = 5 },
 	# set the cardinality > 1 to remove multiple members
 	{ verb = "srem", weight = 5, cardinality = 5 },
 
 	# remove an entire set with delete
-	{ verb = "delete", weight = 5 }
+	{ verb = "delete", weight = 5 },
 ]
 
 # To enable mTLS, uncomment the `[tls]` section below.

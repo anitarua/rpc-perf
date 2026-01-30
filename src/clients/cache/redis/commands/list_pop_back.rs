@@ -1,8 +1,8 @@
 use super::*;
 
 /// Removes and returns the element from the back of a list.
-pub async fn list_pop_back(
-    connection: &mut MultiplexedConnection,
+pub async fn list_pop_back<C: ConnectionLike + AsyncCommands>(
+    connection: &mut C,
     config: &Config,
     request: workload::client::ListPopBack,
 ) -> std::result::Result<(), ResponseError> {

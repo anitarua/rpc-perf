@@ -11,8 +11,8 @@ use tokio::time::error::Elapsed;
 /// `EXPIRE`/`PEXPIRE` commands will count towards the request latency. The
 /// success/failure of the command to set the expiration does not count towards
 /// the request metrics (such as the number of requests, success rate, etc).
-pub async fn sorted_set_increment(
-    connection: &mut MultiplexedConnection,
+pub async fn sorted_set_increment<C: ConnectionLike + AsyncCommands>(
+    connection: &mut C,
     config: &Config,
     request: workload::client::SortedSetIncrement,
 ) -> std::result::Result<(), ResponseError> {

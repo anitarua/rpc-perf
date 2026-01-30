@@ -1,8 +1,8 @@
 use super::*;
 
 /// Removes and returns an element from the front of a list.
-pub async fn list_pop_front(
-    connection: &mut MultiplexedConnection,
+pub async fn list_pop_front<C: ConnectionLike + AsyncCommands>(
+    connection: &mut C,
     config: &Config,
     request: workload::client::ListPopFront,
 ) -> std::result::Result<(), ResponseError> {

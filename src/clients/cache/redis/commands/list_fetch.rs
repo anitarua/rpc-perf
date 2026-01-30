@@ -1,8 +1,8 @@
 use super::*;
 
 /// Retrieve all elements from a list in the cache.
-pub async fn list_fetch(
-    connection: &mut MultiplexedConnection,
+pub async fn list_fetch<C: ConnectionLike + AsyncCommands>(
+    connection: &mut C,
     config: &Config,
     request: workload::client::ListFetch,
 ) -> std::result::Result<(), ResponseError> {

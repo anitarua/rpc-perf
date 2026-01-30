@@ -1,8 +1,8 @@
 use super::*;
 
 /// Delete a field from a hash stored in the cache.
-pub async fn hash_delete(
-    connection: &mut MultiplexedConnection,
+pub async fn hash_delete<C: ConnectionLike + AsyncCommands>(
+    connection: &mut C,
     config: &Config,
     request: workload::client::HashDelete,
 ) -> std::result::Result<(), ResponseError> {

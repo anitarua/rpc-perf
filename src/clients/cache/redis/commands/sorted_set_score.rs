@@ -1,8 +1,8 @@
 use super::*;
 
 /// Returns the score of one or more members in a sorted set.
-pub async fn sorted_set_score(
-    connection: &mut MultiplexedConnection,
+pub async fn sorted_set_score<C: ConnectionLike + AsyncCommands>(
+    connection: &mut C,
     config: &Config,
     request: workload::client::SortedSetScore,
 ) -> std::result::Result<(), ResponseError> {

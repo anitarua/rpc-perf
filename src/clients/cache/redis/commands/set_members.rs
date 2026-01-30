@@ -1,8 +1,8 @@
 use super::*;
 
 /// Return the members of a set.
-pub async fn set_members(
-    connection: &mut MultiplexedConnection,
+pub async fn set_members<C: ConnectionLike + AsyncCommands>(
+    connection: &mut C,
     config: &Config,
     request: workload::client::SetMembers,
 ) -> std::result::Result<(), ResponseError> {

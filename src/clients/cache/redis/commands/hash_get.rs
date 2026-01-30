@@ -1,8 +1,8 @@
 use super::*;
 
 /// Retrieves the value for on or more fields in a hash.
-pub async fn hash_get(
-    connection: &mut MultiplexedConnection,
+pub async fn hash_get<C: ConnectionLike + AsyncCommands>(
+    connection: &mut C,
     config: &Config,
     request: workload::client::HashGet,
 ) -> std::result::Result<(), ResponseError> {
@@ -32,7 +32,8 @@ pub async fn hash_get(
         let fields: Vec<&[u8]> = request.fields.iter().map(|f| &**f).collect();
         match timeout(
             config.client().unwrap().request_timeout(),
-            connection.hget::<&[u8], &[&[u8]], Option<Vec<Option<Vec<u8>>>>>(&request.key, &fields),
+            connection
+                .hmget::<&[u8], &[&[u8]], Option<Vec<Option<Vec<u8>>>>>(&request.key, &fields),
         )
         .await
         {

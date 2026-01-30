@@ -1,8 +1,9 @@
 use super::*;
 
 /// Sends a `PING` and expects a `PONG` response from the server.
-pub async fn ping(
-    connection: &mut MultiplexedConnection,
+pub async fn ping<C: ConnectionLike + AsyncCommands>(
+    // connection: &mut MultiplexedConnection,
+    connection: &mut C,
     config: &Config,
     _request: workload::client::Ping,
 ) -> std::result::Result<(), ResponseError> {

@@ -1,8 +1,8 @@
 use super::*;
 
 /// Removes one or more members of a set.
-pub async fn set_remove(
-    connection: &mut MultiplexedConnection,
+pub async fn set_remove<C: ConnectionLike + AsyncCommands>(
+    connection: &mut C,
     config: &Config,
     request: workload::client::SetRemove,
 ) -> std::result::Result<(), ResponseError> {

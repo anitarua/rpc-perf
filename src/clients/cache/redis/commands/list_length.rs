@@ -1,8 +1,8 @@
 use super::*;
 
 /// Retrieve the length of a list in the cache.
-pub async fn list_length(
-    connection: &mut MultiplexedConnection,
+pub async fn list_length<C: ConnectionLike + AsyncCommands>(
+    connection: &mut C,
     config: &Config,
     request: workload::client::ListLength,
 ) -> std::result::Result<(), ResponseError> {

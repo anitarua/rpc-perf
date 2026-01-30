@@ -1,8 +1,8 @@
 use super::*;
 
 /// Returns the rank for a member in a sorted set.
-pub async fn sorted_set_rank(
-    connection: &mut MultiplexedConnection,
+pub async fn sorted_set_rank<C: ConnectionLike + AsyncCommands>(
+    connection: &mut C,
     config: &Config,
     request: workload::client::SortedSetRank,
 ) -> std::result::Result<(), ResponseError> {

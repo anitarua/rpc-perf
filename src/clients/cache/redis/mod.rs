@@ -2,7 +2,8 @@ use crate::clients::cache::*;
 use crate::clients::common::Queue;
 use crate::clients::*;
 
-use ::redis::aio::MultiplexedConnection;
+use ::redis::aio::{ConnectionLike, MultiplexedConnection};
+use ::redis::cluster_async::ClusterConnection;
 use ::redis::AsyncCommands;
 
 use std::borrow::Borrow;
@@ -27,22 +28,46 @@ pub fn launch_tasks(
             // for each endpoint there are poolsize # of pool managers, each
             // managed a single connection
 
-            let queue = Queue::new(1);
-            runtime.spawn(pool_manager(
-                endpoint.clone(),
-                config.clone(),
-                queue.clone(),
-            ));
-
-            // one task for each concurrent session on the connection
-
-            for _ in 0..config.client().unwrap().concurrency() {
-                runtime.spawn(task(
-                    work_receiver.clone(),
+            if config.target().cluster_mode() {
+                debug!(
+                    "launching resp cluster mode pool manager for endpoint: {}",
+                    endpoint
+                );
+                let queue = Queue::new(1);
+                runtime.spawn(pool_manager_cluster_mode(
                     endpoint.clone(),
                     config.clone(),
                     queue.clone(),
                 ));
+
+                // one task for each concurrent session on the connection
+
+                for _ in 0..config.client().unwrap().concurrency() {
+                    runtime.spawn(task(
+                        work_receiver.clone(),
+                        endpoint.clone(),
+                        config.clone(),
+                        queue.clone(),
+                    ));
+                }
+            } else {
+                let queue = Queue::new(1);
+                runtime.spawn(pool_manager(
+                    endpoint.clone(),
+                    config.clone(),
+                    queue.clone(),
+                ));
+
+                // one task for each concurrent session on the connection
+
+                for _ in 0..config.client().unwrap().concurrency() {
+                    runtime.spawn(task(
+                        work_receiver.clone(),
+                        endpoint.clone(),
+                        config.clone(),
+                        queue.clone(),
+                    ));
+                }
             }
         }
     }
@@ -67,12 +92,12 @@ pub async fn pool_manager(endpoint: String, _config: Config, queue: Queue<Multip
                 CONNECT_CURR.increment();
 
                 client = Some(c);
-                info!(
+                debug!(
                     "===Successfully created redis client to connect to {}===\n",
                     endpoint
                 );
             } else {
-                info!(
+                debug!(
                     "===Failed to create redis client due to {}===\n",
                     connect_result.unwrap_err()
                 );
@@ -80,19 +105,6 @@ pub async fn pool_manager(endpoint: String, _config: Config, queue: Queue<Multip
 
                 tokio::time::sleep(Duration::from_millis(1)).await;
             }
-
-            // if let Ok(c) = ::redis::Client::open(endpoint.clone()) {
-            //     CONNECT_OK.increment();
-            //     CONNECT_CURR.increment();
-
-            //     client = Some(c);
-
-            // } else {
-            //     info!("===Failed to create redis client to connect to {}===\n", endpoint);
-            //     CONNECT_EX.increment();
-
-            //     tokio::time::sleep(Duration::from_millis(1)).await;
-            // }
 
             continue;
         }
@@ -103,15 +115,64 @@ pub async fn pool_manager(endpoint: String, _config: Config, queue: Queue<Multip
             .get_multiplexed_async_connection()
             .await;
         if let Ok(connection) = result {
-            // info!(
-            //     "===Successfully opened resp connection to {}===\n",
-            //     endpoint
-            // );
             let _ = queue.send(connection).await;
         } else {
-            info!(
-                "===Resp multiplexed async connection failed due to {}===\n",
+            debug!(
+                "===Resp multiplexed async connection failed due to {:?}===\n",
                 result.unwrap_err()
+            );
+            client = None;
+        }
+    }
+}
+
+pub async fn pool_manager_cluster_mode(
+    endpoint: String,
+    _config: Config,
+    queue: Queue<ClusterConnection>,
+) {
+    let mut client = None;
+
+    let endpoint = if endpoint.parse::<SocketAddr>().is_ok() {
+        format!("redis://{endpoint}")
+    } else {
+        endpoint
+    };
+
+    while RUNNING.load(Ordering::Relaxed) {
+        if client.is_none() {
+            CONNECT.increment();
+
+            let connect_result = ::redis::cluster::ClusterClient::new([endpoint.clone()]);
+            if let Ok(c) = connect_result {
+                CONNECT_OK.increment();
+                CONNECT_CURR.increment();
+
+                client = Some(c);
+                debug!(
+                    "===Successfully created redis client to connect to {}===\n",
+                    endpoint
+                );
+            } else {
+                debug!(
+                    "===Failed to create redis client due to {:?}===\n",
+                    connect_result.err()
+                );
+                CONNECT_EX.increment();
+
+                tokio::time::sleep(Duration::from_millis(1)).await;
+            }
+
+            continue;
+        }
+
+        let result = client.as_ref().unwrap().get_async_connection().await;
+        if let Ok(connection) = result {
+            let _ = queue.send(connection).await;
+        } else {
+            debug!(
+                "===Resp cluster async connection failed due to {:?}===\n",
+                result.err()
             );
             client = None;
         }
@@ -120,11 +181,11 @@ pub async fn pool_manager(endpoint: String, _config: Config, queue: Queue<Multip
 
 #[allow(dead_code)]
 #[allow(clippy::slow_vector_initialization)]
-async fn task(
+async fn task<C: ConnectionLike + AsyncCommands>(
     work_receiver: Receiver<ClientWorkItemKind<ClientRequest>>,
     endpoint: String,
     config: Config,
-    queue: Queue<MultiplexedConnection>,
+    queue: Queue<C>,
 ) -> Result<()> {
     trace!("launching resp task for endpoint: {endpoint}");
 

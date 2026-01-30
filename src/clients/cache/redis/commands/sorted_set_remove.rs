@@ -1,8 +1,8 @@
 use super::*;
 
 /// Removes a member from a sorted set.
-pub async fn sorted_set_remove(
-    connection: &mut MultiplexedConnection,
+pub async fn sorted_set_remove<C: ConnectionLike + AsyncCommands>(
+    connection: &mut C,
     config: &Config,
     request: workload::client::SortedSetRemove,
 ) -> std::result::Result<(), ResponseError> {

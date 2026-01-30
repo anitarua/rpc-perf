@@ -2,8 +2,8 @@ use super::*;
 
 /// Delete a key from the cache. This will delete an entire Hash/Set/SortedSet
 /// if used in the same keyspace.
-pub async fn delete(
-    connection: &mut MultiplexedConnection,
+pub async fn delete<C: ConnectionLike + AsyncCommands>(
+    connection: &mut C,
     config: &Config,
     request: workload::client::Delete,
 ) -> std::result::Result<(), ResponseError> {

@@ -1,8 +1,8 @@
 use super::*;
 
 /// Retrieve a key-value pair from the cache.
-pub async fn get(
-    connection: &mut MultiplexedConnection,
+pub async fn get<C: ConnectionLike + AsyncCommands>(
+    connection: &mut C,
     config: &Config,
     request: workload::client::Get,
 ) -> std::result::Result<(), ResponseError> {

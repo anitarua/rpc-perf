@@ -10,6 +10,8 @@ pub struct Target {
     endpoint_override: Option<String>,
     /// Configure protosocket clients to use private endpoints
     use_private_endpoints: Option<bool>,
+    /// Enable cluster mode for redis clients
+    cluster_mode: Option<bool>,
 }
 
 impl Target {
@@ -27,5 +29,9 @@ impl Target {
 
     pub fn use_private_endpoints(&self) -> Option<bool> {
         self.use_private_endpoints
+    }
+
+    pub fn cluster_mode(&self) -> bool {
+        self.cluster_mode.unwrap_or(false)
     }
 }

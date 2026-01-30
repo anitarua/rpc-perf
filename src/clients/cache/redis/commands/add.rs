@@ -1,8 +1,8 @@
 use super::*;
 
 /// Adds a key-value pair to the cache if the key does not exist.
-pub async fn add(
-    connection: &mut MultiplexedConnection,
+pub async fn add<C: ConnectionLike + AsyncCommands>(
+    connection: &mut C,
     config: &Config,
     request: workload::client::Add,
 ) -> std::result::Result<(), ResponseError> {
@@ -35,7 +35,7 @@ pub async fn add(
 
     match timeout(
         config.client().unwrap().request_timeout(),
-        command.query_async::<MultiplexedConnection, Option<String>>(connection),
+        command.query_async::<Option<String>>(connection),
     )
     .await
     {
